@@ -20,7 +20,7 @@ jobs:
   system_compile:
     name: Run Integration Test on spr
     runs-on: [self-hosted, spr-runner]
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
       # Install first since it's needed to build NASM
