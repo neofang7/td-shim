@@ -1,0 +1,60 @@
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+name: Ingetration Test on TDX Server
+
+env:
+  AS: nasm
+  AR_x86_64_unknown_uefi: llvm-ar
+  CC_x86_64_unknown_uefi: clang
+  RUST_TOOLCHAIN: nightly-2021-08-20
+  TOOLCHAIN_PROFILE: minimal
+
+jobs:
+  system_compile:
+    name: Run Integration Test on TDX Server
+    runs-on: [self-hosted, tdx]
+    timeout-minutes: 30
+
+    steps:
+      # Install first since it's needed to build NASM
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "10.0"
+          directory: ${{ runner.temp }}/llvm
+
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: ${{ env.TOOLCHAIN_PROFILE }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rust-src, llvm-tools-preview
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo install cargo-xbuild
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-xbuild
+
+      # install QEMU
+      - name: Install QEMU (Linux)
+        run: sudo dnf install qemu-kvm -y
+      - name: "Print QEMU Version"
+        run: qemu-system-x86_64 --version
+
+      - name: Run Tests
+        run: make integration-test
