@@ -18,8 +18,8 @@ env:
 
 jobs:
   system_compile:
-    name: Run Integration Test on TDX Server
-    runs-on: [self-hosted, spr-bkc-pc, spr-runner]
+    name: Run Integration Test on spr
+    runs-on: [self-hosted, spr-runner]
     timeout-minutes: 30
 
     steps:
