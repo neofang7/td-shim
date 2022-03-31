@@ -41,6 +41,12 @@ jobs:
           override: true
           components: rust-src, llvm-tools-preview
 
+      - name: Change lock_api to 0.4.6
+        run: |
+          sed -i 's/version = "0.4.7"/version = "0.4.6"/' Cargo.lock
+          sed -i 's/327fa5b6a6940e4699ec49a9beae1ea4845c6bab9314e4f84ac68742139d8c53/88943dd7ef4a2e5a4bfa2753aaab3013e34ce2533d1996fb18ef591e315e2b3b/' Cargo.lock
+
+
       - name: Cache
         uses: Swatinem/rust-cache@v1
 
@@ -55,11 +61,6 @@ jobs:
         run: sudo dnf install qemu-kvm -y
       - name: "Print QEMU Version"
         run: qemu-system-x86_64 --version
-
-      - name: Change lock_api to 0.4.6
-        run: |
-          sed -i 's/version = "0.4.7"/version = "0.4.6"/' Cargo.lock
-          sed -i 's/327fa5b6a6940e4699ec49a9beae1ea4845c6bab9314e4f84ac68742139d8c53/88943dd7ef4a2e5a4bfa2753aaab3013e34ce2533d1996fb18ef591e315e2b3b/' Cargo.lock
 
       - name: Run Tests
         run: make integration-test
